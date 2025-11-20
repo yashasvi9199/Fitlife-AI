@@ -1,0 +1,148 @@
+.fitness-page {
+  padding: var(--spacing-xl);
+  max-width: 1400px;
+  animation: fadeIn var(--transition-normal);
+}
+
+.routine-form {
+  margin-bottom: var(--spacing-xl);
+}
+
+.routine-form h3 {
+  margin-bottom: var(--spacing-lg);
+}
+
+.exercises-section {
+  margin: var(--spacing-xl) 0;
+}
+
+.exercises-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-lg);
+}
+
+.exercises-header h4 {
+  margin: 0;
+}
+
+.exercise-item {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-md);
+  padding: var(--spacing-md);
+  background: var(--color-background);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+}
+
+.exercise-number {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
+  color: white;
+  border-radius: 50%;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.exercise-fields {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: var(--spacing-md);
+}
+
+.btn-remove {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid var(--color-danger);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  flex-shrink: 0;
+}
+
+.btn-remove:hover {
+  background: var(--color-danger);
+  transform: scale(1.1);
+}
+
+.routines-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: var(--spacing-lg);
+}
+
+.routine-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.routine-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: var(--spacing-md);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.routine-header h3 {
+  margin: 0;
+  color: var(--color-text-primary);
+}
+
+.routine-exercises {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.routine-exercise {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: var(--color-background);
+  border-radius: var(--radius-md);
+}
+
+.exercise-name {
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.exercise-details {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+}
+
+.routine-footer {
+  padding-top: var(--spacing-md);
+  border-top: 1px solid var(--color-border);
+}
+
+@media (max-width: 768px) {
+  .fitness-page {
+    padding: var(--spacing-lg);
+  }
+  
+  .exercise-fields {
+    grid-template-columns: 1fr;
+  }
+  
+  .routines-grid {
+    grid-template-columns: 1fr;
+  }
+}
