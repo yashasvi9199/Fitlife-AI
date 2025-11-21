@@ -211,6 +211,13 @@ class ApiService {
       body: JSON.stringify(metrics),
     });
   }
+
+  async getMotivationQuote() {
+    return this.request('/ai?action=quote', {
+      method: 'POST',
+      body: JSON.stringify({}),
+    });
+  }
 }
 
 export default new ApiService();
