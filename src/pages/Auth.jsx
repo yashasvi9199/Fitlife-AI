@@ -8,11 +8,13 @@ import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../contexts/ToastContext';
 import apiService from '../services/api';
 import authService from '../services/supabase';
+import AuthLoading from '../components/common/AuthLoading';
 import './Auth.css';
 
 const Auth = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [loading, setLoading] = useState(false);
+  const [finishingAnimation, setFinishingAnimation] = useState(false);
   const [error, setError] = useState('');
   
   // Form States
@@ -60,8 +62,12 @@ const Auth = () => {
     }
 
     setLoading(true);
+    setFinishingAnimation(false);
 
     try {
+      // Minimum loading time to show off the cool animation
+      const minLoadTime = new Promise(resolve => setTimeout(resolve, 2000));
+      
       if (!isLogin) {
         // ==================== SIGNUP FLOW ====================
         const { user: authUser, error: authError } = await authService.signUp(email, password);
@@ -94,6 +100,13 @@ const Auth = () => {
           await apiService.updateUserProfile(userId, profileData);
         }
         
+        // Wait for minimum animation time
+        await minLoadTime;
+        
+        // Trigger finish animation
+        setFinishingAnimation(true);
+        await new Promise(resolve => setTimeout(resolve, 1000)); // Wait for drop animation
+
         // Step 3: Log the user in
         login({
           user_id: userId,
@@ -119,35 +132,50 @@ const Auth = () => {
           const userId = authUser.id;
 
           // Fetch user profile from database
+          let userData;
           try {
             const profile = await apiService.getUserProfile(userId);
-            login({
+            userData = {
               user_id: userId,
               ...profile,
               email: authUser.email
-            });
+            };
           } catch (err) {
             // If profile doesn't exist, just log them in with basic info
-            login({
+            userData = {
               user_id: userId,
               name: authUser.user_metadata?.name || 'User',
               email: authUser.email
-            });
+            };
           }
         
+        // Wait for minimum animation time
+        await minLoadTime;
+
+        // Trigger finish animation
+        setFinishingAnimation(true);
+        await new Promise(resolve => setTimeout(resolve, 1000)); // Wait for drop animation
+
+        login(userData);
         showSuccess('Welcome back!');
         navigate('/');
       }
     } catch (err) {
       console.error('Auth error:', err);
       setError(err.message || 'Authentication failed. Please try again.');
+      setLoading(false); // Stop loading immediately on error
     } finally {
-      setLoading(false);
+      // Only stop loading if we didn't navigate (handled in try block)
+      // If we navigated, component unmounts anyway
+      if (error) {
+        setLoading(false);
+      }
     }
   };
 
   return (
     <div className="auth-container">
+      {loading && <AuthLoading isFinishing={finishingAnimation} />}
       <div className="auth-background">
         <div className="auth-blob blob-1"></div>
         <div className="auth-blob blob-2"></div>
