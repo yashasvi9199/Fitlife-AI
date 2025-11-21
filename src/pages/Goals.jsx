@@ -10,6 +10,7 @@ import './Goals.css';
 
 const Goals = () => {
   const { user } = useAuth();
+  const { showSuccess, showError } = useToast();
   const [goals, setGoals] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
@@ -105,12 +106,12 @@ const Goals = () => {
     
     try {
       setLoading(true);
-      console.log('Deleting goal:', id);
       await apiService.deleteGoal(id);
+      showSuccess('Goal deleted successfully! 🎯');
       loadGoals();
     } catch (error) {
       console.error('Error deleting goal:', error);
-      alert('Failed to delete goal. Please try again.');
+      showError('Failed to delete goal. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -123,8 +124,10 @@ const Goals = () => {
       
       if (editingGoal) {
         await apiService.updateGoal(editingGoal.id, parseFloat(formData.target));
+        showSuccess('Goal updated successfully! 💪');
       } else {
         await apiService.setGoal(user.user_id, formData.type, parseFloat(formData.target));
+        showSuccess('New goal created! Let\'s crush it! 🚀');
       }
       
       setShowForm(false);
@@ -133,7 +136,7 @@ const Goals = () => {
       loadGoals();
     } catch (error) {
       console.error('Error saving goal:', error);
-      alert('Failed to save goal. Please try again.');
+      showError('Failed to save goal. Please try again.');
     } finally {
       setLoading(false);
     }
