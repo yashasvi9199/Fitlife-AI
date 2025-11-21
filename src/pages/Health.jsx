@@ -160,8 +160,9 @@ const Health = () => {
 
       // Validate all records
       for (const record of recordsToSubmit) {
-        if (!isValidNumber(record.value, 0, 500)) {
-          showError('Please enter valid values between 0 and 500');
+        const maxValue = record.type === 'steps' ? 100000 : 500;
+        if (!isValidNumber(record.value, 0, maxValue)) {
+          showError(`Please enter valid values between 0 and ${maxValue}`);
           return;
         }
       }
