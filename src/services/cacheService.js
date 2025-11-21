@@ -15,9 +15,10 @@ class CacheService {
   encrypt(data) {
     try {
       const jsonString = JSON.stringify(data);
-      // Simple rotation cipher or just btoa with salt
       const salted = SALT + jsonString;
-      return btoa(salted);
+      // Use encodeURIComponent to handle Unicode characters before btoa
+      const encoded = encodeURIComponent(salted);
+      return btoa(encoded);
     } catch (e) {
       console.error('Encryption failed', e);
       return null;
@@ -30,10 +31,12 @@ class CacheService {
   decrypt(encryptedData) {
     try {
       const decoded = atob(encryptedData);
-      if (!decoded.startsWith(SALT)) {
+      // Decode the URI component to restore Unicode characters
+      const decodedUri = decodeURIComponent(decoded);
+      if (!decodedUri.startsWith(SALT)) {
         return null; // Invalid or tampered data
       }
-      const jsonString = decoded.slice(SALT.length);
+      const jsonString = decodedUri.slice(SALT.length);
       return JSON.parse(jsonString);
     } catch (e) {
       console.error('Decryption failed', e);
@@ -74,7 +77,7 @@ class CacheService {
   /**
    * Clear all app-related cache
    */
-  clearAll() {
+  clear() {
     Object.keys(localStorage).forEach(key => {
       if (key.startsWith(CACHE_PREFIX)) {
         localStorage.removeItem(key);

@@ -28,7 +28,45 @@ const Goals = () => {
     { value: 'steps', label: 'Daily Steps', icon: '👟', unit: 'steps' },
   ];
 
-  // ... (goalTypes and motivationalQuotes remain the same)
+  // Motivational quotes for different goal states
+  const motivationalQuotes = {
+    inProgress: [
+      "Every step forward is progress, no matter how small!",
+      "You're stronger than you think. Keep pushing!",
+      "Consistency is the key to success. You've got this!",
+      "The only bad workout is the one you didn't do.",
+      "Your future self will thank you for not giving up!",
+      "Progress, not perfection. Keep going!",
+      "Believe in yourself and all that you are!",
+      "Small daily improvements lead to stunning results!",
+      "You didn't come this far to only come this far!",
+      "Champions keep playing until they get it right!"
+    ],
+    completed: [
+      "🎉 Amazing! You crushed this goal!",
+      "🏆 Incredible achievement! You're unstoppable!",
+      "⭐ Outstanding! Time to set a new challenge!",
+      "💪 You did it! Your dedication paid off!",
+      "🌟 Phenomenal work! You're an inspiration!",
+      "🎯 Goal conquered! What's next, champion?",
+      "✨ Brilliant! You've proven what you're capable of!",
+      "🔥 On fire! This is just the beginning!",
+      "💯 Perfect! Your hard work speaks volumes!",
+      "🚀 Mission accomplished! Ready for the next level?"
+    ],
+    justStarted: [
+      "Great start! The journey of a thousand miles begins with one step.",
+      "You've begun! That's the hardest part. Keep it up!",
+      "Starting is half the battle. You're already winning!",
+      "Every expert was once a beginner. You're on your way!",
+      "The first step is always the hardest. You've taken it!",
+      "New beginnings are exciting! Embrace the journey!",
+      "You've planted the seed. Now watch it grow!",
+      "Starting strong! Momentum is building!",
+      "The best time to start was yesterday. The next best time is now!",
+      "You're writing your success story, one day at a time!"
+    ]
+  };
 
   useEffect(() => {
     loadGoals();
@@ -93,19 +131,19 @@ const Goals = () => {
     return Math.min(Math.random() * 100, 100);
   };
 
-  // const getMotivationalQuote = (progress) => {
-  //   let quotes;
-  //   if (progress >= 100) {
-  //     quotes = motivationalQuotes.completed;
-  //   } else if (progress >= 50) {
-  //     quotes = motivationalQuotes.inProgress;
-  //   } else {
-  //     quotes = motivationalQuotes.justStarted;
-  //   }
-  //   // Use a consistent random quote based on progress (so it doesn't change on re-render)
-  //   const index = Math.floor(progress) % quotes.length;
-  //   return quotes[index];
-  // };
+  const getMotivationalQuote = (progress) => {
+    let quotes;
+    if (progress >= 100) {
+      quotes = motivationalQuotes.completed;
+    } else if (progress >= 50) {
+      quotes = motivationalQuotes.inProgress;
+    } else {
+      quotes = motivationalQuotes.justStarted;
+    }
+    // Use a consistent random quote based on progress (so it doesn't change on re-render)
+    const index = Math.floor(progress) % quotes.length;
+    return quotes[index];
+  };
 
   return (
     <div className="goals-page">
@@ -171,7 +209,7 @@ const Goals = () => {
         {!loading && goals.map((goal) => {
           const typeInfo = getGoalTypeInfo(goal.type);
           const progress = calculateProgress(goal);
-          // const quote = getMotivationalQuote(progress);
+          const quote = getMotivationalQuote(progress);
           
           return (
             <div key={goal.id} className="goal-card card">
@@ -203,7 +241,7 @@ const Goals = () => {
                 {/* Motivational Quote */}
                 <div className="goal-motivation">
                   <span className="motivation-icon">💭</span>
-                  {/* <p className="motivation-text">{quote}</p> */}
+                  <p className="motivation-text">{quote}</p>
                 </div>
               </div>
             </div>

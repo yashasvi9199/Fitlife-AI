@@ -113,8 +113,11 @@ const AppLayout = () => {
 
 // Root App Component
 function App() {
+  // Use /FitLifeAI basename only in production (GitHub Pages)
+  const basename = import.meta.env.MODE === 'production' ? '/Fitlife-AI' : '/';
+  
   return (
-    <Router>
+    <Router basename={basename}>
       <ThemeProvider>
         <AuthProvider>
           <ToastProvider>
