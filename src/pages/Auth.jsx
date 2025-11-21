@@ -3,6 +3,7 @@
  */
 
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../contexts/ToastContext';
 import apiService from '../services/api';
@@ -28,6 +29,7 @@ const Auth = () => {
 
   const { login } = useAuth();
   const { showSuccess, showError } = useToast();
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -99,7 +101,8 @@ const Auth = () => {
           email
         });
         
-        showSuccess('Account created successfully! Please check your email to verify your account.');
+        showSuccess('Account created successfully! Welcome to FitLife AI!');
+        navigate('/');
         
       } else {
         // ==================== LOGIN FLOW ====================
@@ -133,6 +136,7 @@ const Auth = () => {
           }
         
         showSuccess('Welcome back!');
+        navigate('/');
       }
     } catch (err) {
       console.error('Auth error:', err);

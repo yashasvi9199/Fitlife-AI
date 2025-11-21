@@ -20,8 +20,10 @@ const Health = () => {
   const [showForm, setShowForm] = useState(false);
   const [showRecentRecords, setShowRecentRecords] = useState(false); // Collapsed by default
   const [editingRecord, setEditingRecord] = useState(null);
-  const [aiAnalysis, setAiAnalysis] = useState('');
+  const [aiAnalysis, setAiAnalysis] = useState(null);
   const [analyzingHealth, setAnalyzingHealth] = useState(false);
+  const [savedAnalysis, setSavedAnalysis] = useState(null); // Store analysis when editing
+  const formRef = useRef(null);
   const recentRecordsRef = useRef(null);
   
   // Form state for multiple records
@@ -66,32 +68,22 @@ const Health = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [records]);
 
-  const loadHealthData = async () => {
+  const loadHealthData = async (force = false) => {
     try {
       setLoading(true);
       
-      // 1. Try to get from cache first
-      const cachedRecords = cacheService.get(`health_records_${user.user_id}`);
-      if (cachedRecords) {
-        console.log('Loaded health records from cache');
-        setRecords(cachedRecords);
-        setLoading(false);
-        // Optional: Background refresh if needed, but user said "until force refresh"
-        return; 
-      }
-
-      // 2. If no cache, fetch from API
+      // CACHE DISABLED FOR DEBUGGING
+      // Fetch directly from API
       const data = await apiService.getHealthRecords(user.user_id);
-      const sortedData = Array.isArray(data) ? data.sort((a, b) => new Date(b.date) - new Date(a.date)) : [];
+      console.log('Raw API response:', data);
+      // Sort by created_at (timestamp) to get truly latest records
+      const sortedData = Array.isArray(data) ? data.sort((a, b) => new Date(b.created_at) - new Date(a.created_at)) : [];
+      console.log('Sorted data:', sortedData);
       
       setRecords(sortedData);
-      
-      // 3. Save to cache
-      cacheService.set(`health_records_${user.user_id}`, sortedData);
 
     } catch (error) {
       console.error('Error loading health data:', error);
-      // If API fails, maybe we have old cache? (Already checked above)
       showError('Failed to load health records');
     } finally {
       setLoading(false);
@@ -99,25 +91,37 @@ const Health = () => {
   };
 
   const analyzeHealthData = async () => {
+    if (records.length === 0) return;
+
     try {
       setAnalyzingHealth(true);
       
       // Get latest values for each health metric
-      // Prepare data for AI (latest stats)
       const latestMetrics = {};
       healthTypes.forEach(type => {
-        const latest = records.find(r => r.type === type.value);
-        if (latest) {
-          latestMetrics[type.value] = latest.value;
+        const typeRecords = records
+          .filter(r => r.type === type.value)
+          .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+        
+        if (typeRecords.length > 0) {
+          latestMetrics[type.value] = typeRecords[0].value;
+          console.log(`Latest ${type.value}:`, typeRecords[0].value, 'from created_at:', typeRecords[0].created_at);
         }
       });
 
+      // Add height to weight data for BMI calculation
+      if (latestMetrics.weight && latestMetrics.height) {
+        latestMetrics.weight = {
+          value: latestMetrics.weight,
+          height: latestMetrics.height
+        };
+      }
+
+      console.log('Sending to AI:', latestMetrics);
       const response = await apiService.analyzeHealth(latestMetrics);
       
       if (response && response.analysis) {
         setAiAnalysis(response.analysis);
-        // 2. Save AI analysis to cache
-        cacheService.set(`health_ai_analysis_${user.user_id}`, response.analysis);
       }
     } catch (error) {
       console.error('Error analyzing health:', error);
@@ -183,7 +187,7 @@ const Health = () => {
       cacheService.remove(`dashboard_data_${user.user_id}`);
 
       handleCancelForm();
-      loadHealthData();
+      await loadHealthData(true); // Force fresh data
       // Re-analyze after new data
       setTimeout(analyzeHealthData, 1000);
     } catch (error) {
@@ -205,6 +209,11 @@ const Health = () => {
     setHeightFeet('');
     setHeightInches('');
     setHeightUnit('cm');
+    // Restore saved analysis
+    if (savedAnalysis) {
+      setAiAnalysis(savedAnalysis);
+      setSavedAnalysis(null);
+    }
   };
 
   const handleDeleteRecord = async (id) => {
@@ -220,7 +229,7 @@ const Health = () => {
       cacheService.remove(`dashboard_data_${user.user_id}`);
       
       showSuccess('Record deleted successfully!');
-      loadHealthData();
+      await loadHealthData(true); // Force fresh data
       setTimeout(analyzeHealthData, 1000);
     } catch (error) {
       console.error('Error deleting record:', error);
@@ -242,6 +251,13 @@ const Health = () => {
       date: record.date.split('T')[0]
     }]);
     setShowForm(true);
+    // Save current analysis and hide it
+    setSavedAnalysis(aiAnalysis);
+    setAiAnalysis(null);
+    // Scroll to form
+    setTimeout(() => {
+      formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 100);
   };
 
   const addRecordField = () => {
@@ -441,7 +457,7 @@ const Health = () => {
       </div>
 
       {/* AI Health Analysis Box */}
-      {(aiAnalysis || analyzingHealth) && (
+      {!showForm && (aiAnalysis || analyzingHealth) && (
         <div className="ai-analysis-box">
           <div className="ai-analysis-header">
             <span className="ai-icon">🤖</span>
@@ -483,7 +499,7 @@ const Health = () => {
 
       {/* Add Record Form */}
       {showForm && (
-        <div className="card health-form fade-in">
+        <div ref={formRef} className="card health-form fade-in">
           <h3>{editingRecord ? 'Edit Health Record' : 'Add Health Records'}</h3>
           <form onSubmit={handleSubmit}>
             {multipleRecords.map((record, index) => (

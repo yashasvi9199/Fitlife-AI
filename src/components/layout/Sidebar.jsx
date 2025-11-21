@@ -2,14 +2,31 @@
  * Sidebar Navigation Component - Collapsible sidebar with menu items
  */
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import ThemeToggle from '../common/ThemeToggle';
 import './Sidebar.css';
 
 const Sidebar = ({ currentPage, onNavigate }) => {
   const [collapsed, setCollapsed] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   const { user, logout } = useAuth();
+
+  // Detect mobile and set initial state
+  useEffect(() => {
+    const checkMobile = () => {
+      const mobile = window.innerWidth <= 768;
+      setIsMobile(mobile);
+      // Start collapsed on mobile
+      if (mobile) {
+        setCollapsed(true);
+      }
+    };
+
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   const menuItems = [
     { id: 'dashboard', label: 'Dashboard', icon: '📊' },
@@ -22,14 +39,41 @@ const Sidebar = ({ currentPage, onNavigate }) => {
     { id: 'api-test', label: 'API Test', icon: '🧪' },
   ];
 
+  const handleToggle = () => {
+    setCollapsed(!collapsed);
+  };
+
+  const handleNavigation = (id) => {
+    onNavigate(id);
+    // Auto-close on mobile after navigation
+    if (isMobile) {
+      setCollapsed(true);
+    }
+  };
+
   return (
     <>
-      {/* Mobile Overlay */}
-      {!collapsed && (
+      {/* Mobile Overlay - show when sidebar is open on mobile */}
+      {isMobile && !collapsed && (
         <div 
           className="sidebar-overlay" 
           onClick={() => setCollapsed(true)}
         />
+      )}
+
+      {/* Floating Toggle Button for Mobile (when sidebar is hidden) */}
+      {isMobile && collapsed && (
+        <button 
+          className="sidebar-mobile-toggle" 
+          onClick={handleToggle}
+          aria-label="Open menu"
+        >
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <line x1="3" y1="12" x2="21" y2="12"/>
+            <line x1="3" y1="6" x2="21" y2="6"/>
+            <line x1="3" y1="18" x2="21" y2="18"/>
+          </svg>
+        </button>
       )}
 
       {/* Sidebar */}
@@ -42,7 +86,7 @@ const Sidebar = ({ currentPage, onNavigate }) => {
           </div>
           <button 
             className="sidebar-toggle" 
-            onClick={() => setCollapsed(!collapsed)}
+            onClick={handleToggle}
             aria-label="Toggle sidebar"
           >
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -72,7 +116,7 @@ const Sidebar = ({ currentPage, onNavigate }) => {
             <button
               key={item.id}
               className={`nav-item ${currentPage === item.id ? 'active' : ''}`}
-              onClick={() => onNavigate(item.id)}
+              onClick={() => handleNavigation(item.id)}
               title={collapsed ? item.label : ''}
             >
               <span className="nav-icon">{item.icon}</span>
