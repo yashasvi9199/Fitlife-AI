@@ -4,8 +4,8 @@
 
 import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
+import { useToast } from '../contexts/ToastContext';
 import apiService from '../services/api';
-import { cacheService } from '../services/cacheService';
 import './Goals.css';
 
 const Goals = () => {
@@ -77,21 +77,10 @@ const Goals = () => {
     try {
       setLoading(true);
       
-      // 1. Try cache first
-      const cachedGoals = cacheService.get(`user_goals_${user.user_id}`);
-      if (cachedGoals) {
-        setGoals(cachedGoals);
-        setLoading(false);
-        return;
-      }
-
-      // 2. Fetch from API
+      // Fetch from API
       const data = await apiService.getGoals(user.user_id);
       const goalsList = Array.isArray(data) ? data : [];
       setGoals(goalsList);
-      
-      // 3. Save to cache
-      cacheService.set(`user_goals_${user.user_id}`, goalsList);
       
     } catch (error) {
       console.error('Error loading goals:', error);
@@ -105,10 +94,6 @@ const Goals = () => {
     try {
       setLoading(true);
       await apiService.setGoal(user.user_id, formData.type, parseFloat(formData.target));
-      
-      // Invalidate cache
-      cacheService.remove(`user_goals_${user.user_id}`);
-      cacheService.remove(`dashboard_data_${user.user_id}`);
       
       setShowForm(false);
       setFormData({ type: 'weight_loss', target: '' });

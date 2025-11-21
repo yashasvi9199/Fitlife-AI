@@ -6,7 +6,6 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import apiService from '../services/api';
-import { cacheService } from '../services/cacheService';
 import './Dashboard.css';
 
 const Dashboard = () => {
@@ -40,22 +39,23 @@ const Dashboard = () => {
 
   const fetchMotivation = async () => {
     try {
-      // Try cache first for quote to avoid too many API calls on nav
-      const cachedQuote = cacheService.get('daily_quote');
-      if (cachedQuote) {
-        setQuote(cachedQuote);
-        return;
-      }
-
+      // console.log('Fetching motivation quote...');
+      
+      // console.log('Calling API for quote...');
       const data = await apiService.getMotivationQuote();
+      // console.log('API Response for quote:', data);
+      
       if (data && data.quote) {
         const newQuote = { text: data.quote, author: data.author || 'Unknown' };
         setQuote(newQuote);
-        // Cache for 1 hour so it refreshes occasionally but not every click
-        cacheService.set('daily_quote', newQuote, 60); 
       }
     } catch (error) {
       console.error('Error fetching quote:', error);
+      // Fallback if API fails
+      setQuote({
+        text: "The only bad workout is the one that didn't happen.",
+        author: "Unknown"
+      });
     }
   };
 
@@ -190,7 +190,6 @@ const Dashboard = () => {
       };
 
       setData(dashboardData);
-      cacheService.set(`dashboard_data_${user.user_id}`, dashboardData);
 
     } catch (error) {
       console.error('Error loading dashboard:', error);

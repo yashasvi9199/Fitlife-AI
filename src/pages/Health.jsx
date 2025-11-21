@@ -6,7 +6,6 @@ import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../contexts/ToastContext';
 import apiService from '../services/api';
-import { cacheService } from '../services/cacheService';
 import SearchInput from '../components/common/SearchInput';
 import { sanitizeString, isValidNumber } from '../utils/helpers';
 import './Health.css';
@@ -72,13 +71,12 @@ const Health = () => {
     try {
       setLoading(true);
       
-      // CACHE DISABLED FOR DEBUGGING
       // Fetch directly from API
       const data = await apiService.getHealthRecords(user.user_id);
-      console.log('Raw API response:', data);
+      // console.log('Raw API response:', data);
       // Sort by created_at (timestamp) to get truly latest records
       const sortedData = Array.isArray(data) ? data.sort((a, b) => new Date(b.created_at) - new Date(a.created_at)) : [];
-      console.log('Sorted data:', sortedData);
+      // console.log('Sorted data:', sortedData);
       
       setRecords(sortedData);
 
@@ -105,7 +103,7 @@ const Health = () => {
         
         if (typeRecords.length > 0) {
           latestMetrics[type.value] = typeRecords[0].value;
-          console.log(`Latest ${type.value}:`, typeRecords[0].value, 'from created_at:', typeRecords[0].created_at);
+          // console.log(`Latest ${type.value}:`, typeRecords[0].value, 'from created_at:', typeRecords[0].created_at);
         }
       });
 
@@ -117,7 +115,7 @@ const Health = () => {
         };
       }
 
-      console.log('Sending to AI:', latestMetrics);
+      // console.log('Sending to AI:', latestMetrics);
       const response = await apiService.analyzeHealth(latestMetrics);
       
       if (response && response.analysis) {
@@ -182,11 +180,6 @@ const Health = () => {
         showSuccess(`${recordsToSubmit.length} health record(s) saved successfully!`);
       }
       
-      // Invalidate cache on update
-      cacheService.remove(`health_records_${user.user_id}`);
-      cacheService.remove(`health_ai_analysis_${user.user_id}`);
-      cacheService.remove(`dashboard_data_${user.user_id}`);
-
       handleCancelForm();
       await loadHealthData(true); // Force fresh data
       // Re-analyze after new data
@@ -223,11 +216,6 @@ const Health = () => {
     try {
       setLoading(true);
       await apiService.deleteHealthRecord(id);
-      
-      // Invalidate cache on delete
-      cacheService.remove(`health_records_${user.user_id}`);
-      cacheService.remove(`health_ai_analysis_${user.user_id}`);
-      cacheService.remove(`dashboard_data_${user.user_id}`);
       
       showSuccess('Record deleted successfully!');
       await loadHealthData(true); // Force fresh data

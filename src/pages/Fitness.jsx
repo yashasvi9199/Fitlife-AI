@@ -5,7 +5,6 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import apiService from '../services/api';
-import { cacheService } from '../services/cacheService';
 import './Fitness.css';
 
 const Fitness = () => {
@@ -29,21 +28,10 @@ const Fitness = () => {
     try {
       setLoading(true);
       
-      // 1. Try cache first
-      const cachedRoutines = cacheService.get(`fitness_routines_${user.user_id}`);
-      if (cachedRoutines) {
-        setRoutines(cachedRoutines);
-        setLoading(false);
-        return;
-      }
-
-      // 2. Fetch from API
+      // Fetch from API
       const data = await apiService.getFitnessRoutines(user.user_id);
       const routinesList = Array.isArray(data) ? data : [];
       setRoutines(routinesList);
-      
-      // 3. Save to cache
-      cacheService.set(`fitness_routines_${user.user_id}`, routinesList);
       
     } catch (error) {
       console.error('Error loading routines:', error);
@@ -61,10 +49,6 @@ const Fitness = () => {
       } else {
         await apiService.createFitnessRoutine(user.user_id, formData.name, formData.exercises);
       }
-      
-      // Invalidate cache
-      cacheService.remove(`fitness_routines_${user.user_id}`);
-      cacheService.remove(`dashboard_data_${user.user_id}`);
       
       handleCancelForm();
       loadRoutines();
