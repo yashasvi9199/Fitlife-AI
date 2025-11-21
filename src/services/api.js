@@ -129,6 +129,12 @@ class ApiService {
     });
   }
 
+  async deleteGoal(id) {
+    return this.request(`/goals?action=delete&id=${id}`, {
+      method: 'DELETE',
+    });
+  }
+
   // ==================== CALENDAR API ====================
   
   async createCalendarEvent(userId, title, type, date) {

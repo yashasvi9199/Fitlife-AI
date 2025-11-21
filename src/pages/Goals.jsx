@@ -14,6 +14,7 @@ const Goals = () => {
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   
+  const [editingGoal, setEditingGoal] = useState(null);
   const [formData, setFormData] = useState({
     type: 'weight_loss',
     target: '',
@@ -89,18 +90,50 @@ const Goals = () => {
     }
   };
 
+  const handleEdit = (goal) => {
+    setEditingGoal(goal);
+    setFormData({
+      type: goal.type,
+      target: goal.target
+    });
+    setShowForm(true);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const onDeleteGoal = async (id) => {
+    if (!window.confirm('Are you sure you want to delete this goal?')) return;
+    
+    try {
+      setLoading(true);
+      console.log('Deleting goal:', id);
+      await apiService.deleteGoal(id);
+      loadGoals();
+    } catch (error) {
+      console.error('Error deleting goal:', error);
+      alert('Failed to delete goal. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       setLoading(true);
-      await apiService.setGoal(user.user_id, formData.type, parseFloat(formData.target));
+      
+      if (editingGoal) {
+        await apiService.updateGoal(editingGoal.id, parseFloat(formData.target));
+      } else {
+        await apiService.setGoal(user.user_id, formData.type, parseFloat(formData.target));
+      }
       
       setShowForm(false);
+      setEditingGoal(null);
       setFormData({ type: 'weight_loss', target: '' });
       loadGoals();
     } catch (error) {
-      console.error('Error creating goal:', error);
-      alert('Failed to create goal. Please try again.');
+      console.error('Error saving goal:', error);
+      alert('Failed to save goal. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -137,15 +170,19 @@ const Goals = () => {
           <h1>🎯 Goals</h1>
           <p>Set targets and track your fitness achievements</p>
         </div>
-        <button className="btn btn-primary" onClick={() => setShowForm(!showForm)}>
+        <button className="btn btn-primary" onClick={() => {
+          setShowForm(!showForm);
+          setEditingGoal(null);
+          setFormData({ type: 'weight_loss', target: '' });
+        }}>
           {showForm ? '✕ Cancel' : '➕ Set New Goal'}
         </button>
       </div>
 
-      {/* Create Goal Form */}
+      {/* Create/Edit Goal Form */}
       {showForm && (
         <div className="card goal-form fade-in">
-          <h3>Set New Goal</h3>
+          <h3>{editingGoal ? 'Edit Goal' : 'Set New Goal'}</h3>
           <form onSubmit={handleSubmit}>
             <div className="form-row">
               <div className="form-group">
@@ -154,6 +191,7 @@ const Goals = () => {
                   className="input"
                   value={formData.type}
                   onChange={(e) => setFormData({ ...formData, type: e.target.value })}
+                  disabled={!!editingGoal}
                 >
                   {goalTypes.map(type => (
                     <option key={type.value} value={type.value}>
@@ -176,7 +214,7 @@ const Goals = () => {
               </div>
             </div>
             <button type="submit" className="btn btn-primary" disabled={loading}>
-              {loading ? 'Creating...' : 'Create Goal'}
+              {loading ? 'Saving...' : (editingGoal ? 'Update Goal' : 'Create Goal')}
             </button>
           </form>
         </div>
@@ -228,6 +266,22 @@ const Goals = () => {
                   <span className="motivation-icon">💭</span>
                   <p className="motivation-text">{quote}</p>
                 </div>
+              </div>
+              <div className="goal-actions">
+                <button 
+                  className="btn-icon" 
+                  onClick={() => handleEdit(goal)}
+                  title="Edit Goal"
+                >
+                  ✏️
+                </button>
+                <button 
+                  className="btn-icon" 
+                  onClick={() => onDeleteGoal(goal.id)}
+                  title="Delete Goal"
+                >
+                  🗑️
+                </button>
               </div>
             </div>
           );
