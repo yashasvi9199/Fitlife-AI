@@ -37,7 +37,7 @@ const Calendar = () => {
     try {
       setLoading(true);
       const data = await apiService.getCalendarEvents(user.user_id, selectedDate);
-      setEvents(data.events || []);
+      setEvents(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error('Error loading events:', error);
     } finally {

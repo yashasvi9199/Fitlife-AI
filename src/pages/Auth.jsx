@@ -6,17 +6,19 @@ import { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../contexts/ToastContext';
 import apiService from '../services/api';
+import authService from '../services/supabase';
 import './Auth.css';
 
 const Auth = () => {
   const [isLogin, setIsLogin] = useState(true);
-  const [loginMethod, setLoginMethod] = useState('email'); // 'email' or 'phone'
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   
   // Form States
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [mobile, setMobile] = useState('');
   const [age, setAge] = useState('');
   const [gender, setGender] = useState('');
@@ -33,18 +35,20 @@ const Auth = () => {
 
     // Validation
     if (isLogin) {
-      if (loginMethod === 'email' && !email) {
+      if (!email) {
         setError('Please enter your email');
         return;
       }
-      if (loginMethod === 'phone' && (!mobile || mobile.length < 10)) {
-        setError('Please enter a valid mobile number');
+      if (!password) {
+        setError('Please enter your password');
         return;
       }
     } else {
       // Signup Validation
       if (!name) { setError('Please enter your name'); return; }
       if (!email) { setError('Please enter your email'); return; }
+      if (!password || password.length < 6) { setError('Password must be at least 6 characters'); return; }
+      if (password !== confirmPassword) { setError('Passwords do not match'); return; }
       if (!mobile || mobile.length < 10) { setError('Please enter a valid mobile number'); return; }
       if (!age) { setError('Please enter your age'); return; }
       if (!gender) { setError('Please select your gender'); return; }
@@ -56,64 +60,77 @@ const Auth = () => {
     setLoading(true);
 
     try {
-      const userId = 'caf3a9be-b38c-4014-a472-207a1948082e'; // Supabase Auth user (Hardcoded for demo)
-
       if (!isLogin) {
-        // Signup: Create/Update profile with all details
-        try {
-          const profileData = {
-            name,
-            mobile,
-            age: parseInt(age),
-            gender,
-            city,
-            state,
-            country
-            // Email is not stored in profiles table based on schema, but we collect it
-          };
-
-          // Try to create first, if fails (duplicate), update
-          try {
-             await apiService.createUserProfile(userId, profileData);
-          } catch (createError) {
-             console.log('Create failed, trying update...', createError);
-             await apiService.updateUserProfile(userId, profileData);
-          }
-          
-          login({
-            user_id: userId,
-            ...profileData,
-            email // Store email in local auth state
-          });
-          
-          showSuccess('Account created successfully!');
-        } catch (err) {
-          console.error('Signup error:', err);
-          showError('Failed to create account. Please try again.');
-          setLoading(false);
-          return;
-        }
-      } else {
-        // Login
-        // In a real app, we would verify credentials here.
-        // For this demo, we just fetch the profile if it exists, or log them in with provided details.
+        // ==================== SIGNUP FLOW ====================
+        const { user: authUser, error: authError } = await authService.signUp(email, password);
         
-        try {
-          const profile = await apiService.getUserProfile(userId);
-          login({
-            user_id: userId,
-            ...profile,
-            email: email || (profile && profile.email) // Use entered email or profile email if exists
-          });
-        } catch (err) {
-           // If profile doesn't exist, just log them in with what we have
-           login({
-            user_id: userId,
-            name: 'User',
-            email,
-            mobile
-           });
+        if (authError) {
+          throw new Error(authError.message || 'Failed to create account');
         }
+
+        if (!authUser) {
+          throw new Error('Account creation failed. Please try again.');
+        }
+
+        // Step 2: Create profile in database with the auto-generated UUID
+        const userId = authUser.id; // This is the auto-generated UUID from Supabase Auth
+        
+        const profileData = {
+          name,
+          mobile,
+          age: parseInt(age),
+          gender,
+          city,
+          state,
+          country
+        };
+
+        try {
+          await apiService.createUserProfile(userId, profileData);
+        } catch (createError) {
+          console.log('Create failed, trying update...', createError);
+          await apiService.updateUserProfile(userId, profileData);
+        }
+        
+        // Step 3: Log the user in
+        login({
+          user_id: userId,
+          ...profileData,
+          email
+        });
+        
+        showSuccess('Account created successfully! Please check your email to verify your account.');
+        
+      } else {
+        // ==================== LOGIN FLOW ====================
+        const { user: authUser, error: authError } = await authService.signIn(email, password);
+          
+          if (authError) {
+            throw new Error(authError.message || 'Login failed');
+          }
+
+          if (!authUser) {
+            throw new Error('Login failed. Please check your credentials.');
+          }
+
+          const userId = authUser.id;
+
+          // Fetch user profile from database
+          try {
+            const profile = await apiService.getUserProfile(userId);
+            login({
+              user_id: userId,
+              ...profile,
+              email: authUser.email
+            });
+          } catch (err) {
+            // If profile doesn't exist, just log them in with basic info
+            login({
+              user_id: userId,
+              name: authUser.user_metadata?.name || 'User',
+              email: authUser.email
+            });
+          }
         
         showSuccess('Welcome back!');
       }
@@ -181,26 +198,6 @@ const Auth = () => {
             )}
 
             <form onSubmit={handleSubmit}>
-              {/* Login Method Toggle */}
-              {isLogin && (
-                <div className="login-method-toggle">
-                  <button
-                    type="button"
-                    className={`toggle-btn ${loginMethod === 'email' ? 'active' : ''}`}
-                    onClick={() => setLoginMethod('email')}
-                  >
-                    Email
-                  </button>
-                  <button
-                    type="button"
-                    className={`toggle-btn ${loginMethod === 'phone' ? 'active' : ''}`}
-                    onClick={() => setLoginMethod('phone')}
-                  >
-                    Phone
-                  </button>
-                </div>
-              )}
-
               {/* Signup Fields */}
               {!isLogin && (
                 <>
@@ -219,8 +216,7 @@ const Auth = () => {
                 </>
               )}
 
-              {/* Email Field - Show if Signup OR (Login AND Email method) */}
-              {(!isLogin || (isLogin && loginMethod === 'email')) && (
+              {/* Email Field */}
                 <div className="form-group">
                   <label className="label" htmlFor="email">Email Address</label>
                   <input
@@ -233,10 +229,9 @@ const Auth = () => {
                     disabled={loading}
                   />
                 </div>
-              )}
 
-              {/* Phone Field - Show if Signup OR (Login AND Phone method) */}
-              {(!isLogin || (isLogin && loginMethod === 'phone')) && (
+              {/* Phone Field - Only for Signup */}
+              {!isLogin && (
                 <div className="form-group">
                   <label className="label" htmlFor="mobile">Mobile Number</label>
                   <input
@@ -246,6 +241,36 @@ const Auth = () => {
                     placeholder="+91 9876543210"
                     value={mobile}
                     onChange={(e) => setMobile(e.target.value)}
+                    disabled={loading}
+                  />
+                </div>
+              )}
+
+              {/* Password Field - Show for both Login and Signup */}
+              <div className="form-group">
+                <label className="label" htmlFor="password">Password</label>
+                <input
+                  id="password"
+                  type="password"
+                  className="input"
+                  placeholder={isLogin ? "Enter your password" : "Min 6 characters"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  disabled={loading}
+                />
+              </div>
+
+              {/* Confirm Password - Only for Signup */}
+              {!isLogin && (
+                <div className="form-group">
+                  <label className="label" htmlFor="confirmPassword">Confirm Password</label>
+                  <input
+                    id="confirmPassword"
+                    type="password"
+                    className="input"
+                    placeholder="Re-enter password"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
                     disabled={loading}
                   />
                 </div>
@@ -344,6 +369,8 @@ const Auth = () => {
                   onClick={() => {
                     setIsLogin(!isLogin);
                     setError('');
+                    setPassword('');
+                    setConfirmPassword('');
                   }}
                   disabled={loading}
                 >

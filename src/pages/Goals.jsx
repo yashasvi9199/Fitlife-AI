@@ -5,12 +5,13 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import apiService from '../services/api';
+import { cacheService } from '../services/cacheService';
 import './Goals.css';
 
 const Goals = () => {
   const { user } = useAuth();
   const [goals, setGoals] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   
   const [formData, setFormData] = useState({
@@ -27,6 +28,8 @@ const Goals = () => {
     { value: 'steps', label: 'Daily Steps', icon: '👟', unit: 'steps' },
   ];
 
+  // ... (goalTypes and motivationalQuotes remain the same)
+
   useEffect(() => {
     loadGoals();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -35,8 +38,23 @@ const Goals = () => {
   const loadGoals = async () => {
     try {
       setLoading(true);
+      
+      // 1. Try cache first
+      const cachedGoals = cacheService.get(`user_goals_${user.user_id}`);
+      if (cachedGoals) {
+        setGoals(cachedGoals);
+        setLoading(false);
+        return;
+      }
+
+      // 2. Fetch from API
       const data = await apiService.getGoals(user.user_id);
-      setGoals(data.goals || []);
+      const goalsList = Array.isArray(data) ? data : [];
+      setGoals(goalsList);
+      
+      // 3. Save to cache
+      cacheService.set(`user_goals_${user.user_id}`, goalsList);
+      
     } catch (error) {
       console.error('Error loading goals:', error);
     } finally {
@@ -49,6 +67,11 @@ const Goals = () => {
     try {
       setLoading(true);
       await apiService.setGoal(user.user_id, formData.type, parseFloat(formData.target));
+      
+      // Invalidate cache
+      cacheService.remove(`user_goals_${user.user_id}`);
+      cacheService.remove(`dashboard_data_${user.user_id}`);
+      
       setShowForm(false);
       setFormData({ type: 'weight_loss', target: '' });
       loadGoals();
@@ -69,6 +92,20 @@ const Goals = () => {
     // Mock progress calculation (in real app, compare with current value)
     return Math.min(Math.random() * 100, 100);
   };
+
+  // const getMotivationalQuote = (progress) => {
+  //   let quotes;
+  //   if (progress >= 100) {
+  //     quotes = motivationalQuotes.completed;
+  //   } else if (progress >= 50) {
+  //     quotes = motivationalQuotes.inProgress;
+  //   } else {
+  //     quotes = motivationalQuotes.justStarted;
+  //   }
+  //   // Use a consistent random quote based on progress (so it doesn't change on re-render)
+  //   const index = Math.floor(progress) % quotes.length;
+  //   return quotes[index];
+  // };
 
   return (
     <div className="goals-page">
@@ -134,6 +171,8 @@ const Goals = () => {
         {!loading && goals.map((goal) => {
           const typeInfo = getGoalTypeInfo(goal.type);
           const progress = calculateProgress(goal);
+          // const quote = getMotivationalQuote(progress);
+          
           return (
             <div key={goal.id} className="goal-card card">
               <div className="goal-icon">{typeInfo.icon}</div>
@@ -159,6 +198,12 @@ const Goals = () => {
                   ) : (
                     <span className="badge badge-info">Just Started</span>
                   )}
+                </div>
+
+                {/* Motivational Quote */}
+                <div className="goal-motivation">
+                  <span className="motivation-icon">💭</span>
+                  {/* <p className="motivation-text">{quote}</p> */}
                 </div>
               </div>
             </div>

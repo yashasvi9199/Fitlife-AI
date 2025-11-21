@@ -131,6 +131,32 @@
 .routine-footer {
   padding-top: var(--spacing-md);
   border-top: 1px solid var(--color-border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
+}
+
+.routine-date {
+  font-size: 0.875rem;
+  color: var(--color-text-tertiary);
+}
+
+.header-actions {
+  display: flex;
+  gap: var(--spacing-md);
+  align-items: center;
+}
+
+.form-actions {
+  display: flex;
+  gap: var(--spacing-md);
+  margin-top: var(--spacing-lg);
+}
+
+.form-actions .btn {
+  flex: 1;
 }
 
 @media (max-width: 768px) {

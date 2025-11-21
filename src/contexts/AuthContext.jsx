@@ -3,6 +3,7 @@
  */
 
 import { createContext, useContext, useState } from 'react';
+import { cacheService } from '../services/cacheService';
 
 const AuthContext = createContext();
 
@@ -38,6 +39,7 @@ export const AuthProvider = ({ children }) => {
   const logout = () => {
     setUser(null);
     localStorage.removeItem('fitlife-user');
+    cacheService.clear();
   };
 
   const updateUser = (userData) => {

@@ -54,14 +54,35 @@ class ApiService {
   // ==================== HEALTH API ====================
   
   async createHealthRecord(userId, type, value, date) {
+    // Check if first argument is an array for bulk creation
+    if (Array.isArray(userId)) {
+      return this.request('/health?action=create', {
+        method: 'POST',
+        body: JSON.stringify(userId),
+      });
+    }
     return this.request('/health?action=create', {
       method: 'POST',
       body: JSON.stringify({ user_id: userId, type, value, date }),
     });
   }
 
+  async updateHealthRecord(id, type, value, date) {
+    return this.request('/health?action=update', {
+      method: 'PUT',
+      body: JSON.stringify({ id, type, value, date }),
+    });
+  }
+
+  async deleteHealthRecord(id) {
+    return this.request(`/health?action=delete&id=${id}`, {
+      method: 'DELETE',
+    });
+  }
+
   async getHealthRecords(userId, type) {
-    return this.request(`/health?action=records&user_id=${userId}&type=${type}`);
+    const typeParam = type ? `&type=${type}` : '';
+    return this.request(`/health?action=records&user_id=${userId}${typeParam}`);
   }
 
   async getHealthStats(userId, period = '7days') {
@@ -182,6 +203,13 @@ class ApiService {
 
   async getNutritionByBarcode(barcode) {
     return this.request(`/ai?action=nutrition&barcode=${barcode}`);
+  }
+
+  async analyzeHealth(metrics) {
+    return this.request('/ai?action=analyze-health', {
+      method: 'POST',
+      body: JSON.stringify(metrics),
+    });
   }
 }
 

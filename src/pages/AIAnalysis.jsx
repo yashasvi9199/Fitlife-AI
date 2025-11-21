@@ -14,6 +14,7 @@ const AIAnalysis = () => {
   const [result, setResult] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
   const [barcode, setBarcode] = useState('');
+  const [analyzed, setAnalyzed] = useState(false);
 
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
@@ -21,6 +22,8 @@ const AIAnalysis = () => {
       const reader = new FileReader();
       reader.onloadend = () => {
         setImagePreview(reader.result);
+        setAnalyzed(false);
+        setResult(null);
       };
       reader.readAsDataURL(file);
     }
@@ -36,6 +39,7 @@ const AIAnalysis = () => {
       setLoading(true);
       const data = await apiService.analyzeFoodImage(imagePreview);
       setResult(data);
+      setAnalyzed(true);
     } catch (error) {
       console.error('Error analyzing image:', error);
       alert('Failed to analyze image. Please try again.');
@@ -70,6 +74,8 @@ const AIAnalysis = () => {
       const reader = new FileReader();
       reader.onloadend = () => {
         setImagePreview(reader.result);
+        setAnalyzed(false);
+        setResult(null);
       };
       reader.readAsDataURL(file);
     }
@@ -159,7 +165,7 @@ const AIAnalysis = () => {
                   <button
                     className="btn btn-primary"
                     onClick={handleImageAnalysis}
-                    disabled={loading}
+                    disabled={loading || analyzed}
                   >
                     {loading ? 'Analyzing...' : '🔍 Analyze Image'}
                   </button>
@@ -168,6 +174,7 @@ const AIAnalysis = () => {
                     onClick={() => {
                       setImagePreview(null);
                       setResult(null);
+                      setAnalyzed(false);
                     }}
                   >
                     ✕ Clear
@@ -224,17 +231,17 @@ const AIAnalysis = () => {
               <div className="nutrition-card">
                 <span className="nutrition-icon">🍖</span>
                 <p className="nutrition-label">Protein</p>
-                <p className="nutrition-value">{result.protein || 'N/A'}g</p>
+                <p className="nutrition-value">{result.nutrition?.protein || 'N/A'}g</p>
               </div>
               <div className="nutrition-card">
                 <span className="nutrition-icon">🍞</span>
                 <p className="nutrition-label">Carbs</p>
-                <p className="nutrition-value">{result.carbs || 'N/A'}g</p>
+                <p className="nutrition-value">{result.nutrition?.carbs || 'N/A'}g</p>
               </div>
               <div className="nutrition-card">
                 <span className="nutrition-icon">🥑</span>
                 <p className="nutrition-label">Fat</p>
-                <p className="nutrition-value">{result.fat || 'N/A'}g</p>
+                <p className="nutrition-value">{result.nutrition?.fat || 'N/A'}g</p>
               </div>
             </div>
             

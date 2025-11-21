@@ -3,7 +3,8 @@
  * Entry point with routing, authentication, and layout
  */
 
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { ToastProvider } from './contexts/ToastContext';
@@ -19,10 +20,31 @@ import Profile from './pages/Profile';
 import APITest from './pages/APITest';
 import './App.css';
 
-// Main App Content (after authentication)
-const AppContent = () => {
+// Protected Route Component
+const ProtectedRoute = ({ children }) => {
   const { user, loading } = useAuth();
-  const [currentPage, setCurrentPage] = useState('dashboard');
+  
+  if (loading) {
+    return (
+      <div className="app-loading" role="status" aria-live="polite">
+        <div className="spinner" aria-hidden="true"></div>
+        <p>Loading FitLife AI...</p>
+      </div>
+    );
+  }
+  
+  if (!user) {
+    return <Navigate to="/auth" />;
+  }
+  
+  return children;
+};
+
+// Main Layout Component
+const AppLayout = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { user } = useAuth();
 
   // Keyboard shortcuts
   useEffect(() => {
@@ -42,68 +64,48 @@ const AppContent = () => {
       if (e.altKey && !user) return;
       
       const shortcuts = {
-        '1': 'dashboard',
-        '2': 'health',
-        '3': 'fitness',
-        '4': 'goals',
-        '5': 'calendar',
-        '6': 'ai-analysis',
-        '7': 'profile',
-        '8': 'api-test',
+        '1': '/',
+        '2': '/health',
+        '3': '/fitness',
+        '4': '/goals',
+        '5': '/calendar',
+        '6': '/ai-analysis',
+        '7': '/profile',
+        '8': '/api-test',
       };
 
       if (shortcuts[e.key]) {
         e.preventDefault();
-        setCurrentPage(shortcuts[e.key]);
+        navigate(shortcuts[e.key]);
       }
     };
 
     window.addEventListener('keydown', handleKeyPress);
     return () => window.removeEventListener('keydown', handleKeyPress);
-  }, [user]);
+  }, [user, navigate]);
 
-  if (loading) {
-    return (
-      <div className="app-loading" role="status" aria-live="polite">
-        <div className="spinner" aria-hidden="true"></div>
-        <p>Loading FitLife AI...</p>
-      </div>
-    );
-  }
-
-  if (!user) {
-    return <Auth />;
-  }
-
-  // Render current page
-  const renderPage = () => {
-    switch (currentPage) {
-      case 'dashboard':
-        return <Dashboard />;
-      case 'health':
-        return <Health />;
-      case 'fitness':
-        return <Fitness />;
-      case 'goals':
-        return <Goals />;
-      case 'calendar':
-        return <Calendar />;
-      case 'ai-analysis':
-        return <AIAnalysis />;
-      case 'profile':
-        return <Profile />;
-      case 'api-test':
-        return <APITest />;
-      default:
-        return <Dashboard />;
-    }
+  // Determine current page from path
+  const getCurrentPage = () => {
+    const path = location.pathname;
+    if (path === '/') return 'dashboard';
+    return path.substring(1); // remove leading slash
   };
 
   return (
     <div className="app-layout">
-      <Sidebar currentPage={currentPage} onNavigate={setCurrentPage} />
+      <Sidebar currentPage={getCurrentPage()} onNavigate={(page) => navigate(page === 'dashboard' ? '/' : `/${page}`)} />
       <main className="app-main" role="main">
-        {renderPage()}
+        <Routes>
+          <Route path="/" element={<Dashboard />} />
+          <Route path="/health" element={<Health />} />
+          <Route path="/fitness" element={<Fitness />} />
+          <Route path="/goals" element={<Goals />} />
+          <Route path="/calendar" element={<Calendar />} />
+          <Route path="/ai-analysis" element={<AIAnalysis />} />
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/api-test" element={<APITest />} />
+          <Route path="*" element={<Navigate to="/" />} />
+        </Routes>
       </main>
     </div>
   );
@@ -112,13 +114,25 @@ const AppContent = () => {
 // Root App Component
 function App() {
   return (
-    <ThemeProvider>
-      <AuthProvider>
-        <ToastProvider>
-          <AppContent />
-        </ToastProvider>
-      </AuthProvider>
-    </ThemeProvider>
+    <Router>
+      <ThemeProvider>
+        <AuthProvider>
+          <ToastProvider>
+            <Routes>
+              <Route path="/auth" element={<Auth />} />
+              <Route 
+                path="/*" 
+                element={
+                  <ProtectedRoute>
+                    <AppLayout />
+                  </ProtectedRoute>
+                } 
+              />
+            </Routes>
+          </ToastProvider>
+        </AuthProvider>
+      </ThemeProvider>
+    </Router>
   );
 }
 
