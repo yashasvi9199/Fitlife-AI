@@ -47,10 +47,11 @@ const Health = () => {
     { value: 'blood_pressure', label: 'Blood Pressure', icon: '🩸', unit: 'mmHg', placeholder: 'e.g., 120 (systolic)', color: '#EC4899' },
     { value: 'blood_sugar', label: 'Blood Sugar', icon: '🍬', unit: 'mg/dL', placeholder: 'e.g., 100', color: '#8B5CF6' },
     { value: 'sleep_hours', label: 'Sleep Time', icon: '😴', unit: 'hours', placeholder: 'e.g., 7.5', color: '#6366F1' },
-    { value: 'menstruation', label: 'Menstruation Cycle', icon: '🌸', unit: 'day', placeholder: 'Day of cycle (1-28)', color: '#EC4899' },
+    ...(user?.gender?.toLowerCase() !== 'male' ? [{ value: 'menstruation', label: 'Menstruation Cycle', icon: '🌸', unit: 'day', placeholder: 'Day of cycle (1-28)', color: '#EC4899' }] : [])
   ];
 
   useEffect(() => {
+    // console.log('Current user in Health:', user);
     loadHealthData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

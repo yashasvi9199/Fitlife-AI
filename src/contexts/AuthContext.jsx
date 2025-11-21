@@ -14,36 +14,46 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Check for stored user session
-    const storedUser = localStorage.getItem('fitlife_user');
-    if (storedUser) {
-      try {
-        setUser(JSON.parse(storedUser));
-      } catch (e) {
-        console.error('Failed to parse stored user', e);
-        localStorage.removeItem('fitlife_user');
+    const initAuth = async () => {
+      // Check for stored user session
+      const storedUser = localStorage.getItem('fitlife_user');
+      if (storedUser) {
+        try {
+          const parsedUser = JSON.parse(storedUser);
+          setUser(parsedUser);
+          
+          // Refresh profile from API to ensure we have latest data (like gender)
+          // Skip for the old mock ID '12345' to avoid 404s if it doesn't exist in DB
+          if (parsedUser.user_id && parsedUser.user_id !== '12345') {
+             try {
+               const profile = await apiService.getUserProfile(parsedUser.user_id);
+               if (profile) {
+                 const updatedUser = { ...parsedUser, ...profile };
+                 // Preserve email if not returned by profile
+                 if (!updatedUser.email && parsedUser.email) {
+                   updatedUser.email = parsedUser.email;
+                 }
+                 setUser(updatedUser);
+                 localStorage.setItem('fitlife_user', JSON.stringify(updatedUser));
+               }
+             } catch (err) {
+               console.error('Failed to refresh profile', err);
+             }
+          }
+        } catch (e) {
+          console.error('Failed to parse stored user', e);
+          localStorage.removeItem('fitlife_user');
+        }
       }
-    }
-    setLoading(false);
+      setLoading(false);
+    };
+
+    initAuth();
   }, []);
 
-  const login = async (email, password) => {
-    // This would be a real API call
-    // For now, we simulate a login
-    // In a real app, you'd get a token and user data
-    
-    // Simulate API delay
-    await new Promise(resolve => setTimeout(resolve, 500));
-    
-    const mockUser = {
-      user_id: '12345', // Replace with real ID from DB
-      email,
-      name: email.split('@')[0]
-    };
-    
-    setUser(mockUser);
-    localStorage.setItem('fitlife_user', JSON.stringify(mockUser));
-    return mockUser;
+  const login = (userData) => {
+    setUser(userData);
+    localStorage.setItem('fitlife_user', JSON.stringify(userData));
   };
 
   const logout = () => {
@@ -60,7 +70,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading: false, login, logout, updateUser }}>
+    <AuthContext.Provider value={{ user, loading, login, logout, updateUser }}>
       {children}
     </AuthContext.Provider>
   );

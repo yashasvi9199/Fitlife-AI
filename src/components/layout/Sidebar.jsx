@@ -101,7 +101,7 @@ const Sidebar = ({ currentPage, onNavigate }) => {
         {!collapsed && (
           <div className="sidebar-user">
             <div className="user-avatar gradient-primary">
-              {user?.name?.charAt(0).toUpperCase() || 'U'}
+              {(user?.name && typeof user.name === 'string') ? user.name.charAt(0).toUpperCase() : 'U'}
             </div>
             <div className="user-info">
               <p className="user-name">{user?.name || 'User'}</p>
