@@ -200,6 +200,13 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  font-size: 1.1rem !important ;
+  font-weight: 600 !important;
+  color: #000000 !important;
+}
+
+[data-theme="dark"] .nav-label {
+  color: #ffffff !important;
 }
 
 .sidebar.collapsed .nav-item {
