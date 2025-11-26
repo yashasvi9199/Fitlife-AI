@@ -36,7 +36,7 @@ const Sidebar = ({ currentPage, onNavigate }) => {
     { id: 'calendar', label: 'Calendar', icon: '📅' },
     { id: 'ai-analysis', label: 'AI Analysis', icon: '🤖' },
     { id: 'profile', label: 'Profile', icon: '👤' },
-    { id: 'api-test', label: 'API Test', icon: '🧪' },
+    // { id: 'api-test', label: 'API Test', icon: '🧪' },
   ];
 
   const handleToggle = () => {

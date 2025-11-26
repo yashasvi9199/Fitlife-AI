@@ -130,7 +130,7 @@ const AppLayout = () => {
           <Route path="/calendar" element={<Calendar />} />
           <Route path="/ai-analysis" element={<AIAnalysis />} />
           <Route path="/profile" element={<Profile />} />
-          <Route path="/api-test" element={<APITest />} />
+          {/* <Route path="/api-test" element={<APITest />} /> */}
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
       </main>
