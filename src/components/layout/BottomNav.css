@@ -1,16 +1,49 @@
+.bottom-nav, .bottom-nav * {
+  box-sizing: border-box;
+  transition: none !important;
+}
+
 .bottom-nav {
   position: fixed;
   bottom: 0;
   left: 0;
+  right: 0;
   width: 100%;
-  height: 80px; /* Taller to match screenshot */
-  background-color: #0f172a; /* Dark background */
-  display: flex;
-  justify-content: space-around;
-  align-items: center;
-  padding-bottom: 10px; /* Safe area for gestures */
+  background: rgb(0, 0, 0);
+  border-top: 2px solid var(--color-border);
   z-index: 1000;
-  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: var(--shadow-lg);
+  transition: all var(--transition-normal);
+  display: flex;
+  align-items: flex-end;
+  padding: 10px 0;
+  gap: 0;
+  overflow-x: hidden;
+}
+
+.bottom-nav.expanded {
+  height: auto;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.bottom-nav-items {
+  display: flex;
+  justify-content: flex-start;
+  /* justify-content: space-evenly; */
+  align-items: center;
+  flex: 1;
+  gap: 8px;
+  flex-wrap: nowrap;
+  padding: 0 8px;             /* keep a tiny inner padding so wrapped items don't hit edge */
+  max-width: 100%;
+}
+
+.bottom-nav.expanded .bottom-nav-items {
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  gap: 8px;
+  /* padding-right: 2px; */
 }
 
 .bottom-nav-item {
@@ -20,12 +53,36 @@
   justify-content: center;
   background: transparent;
   border: none;
-  flex: 1;
+  min-width: 60px;
   cursor: pointer;
   gap: 4px;
-  color: #94a3b8; /* Inactive color */
-  padding: 8px 0;
+  color: var(--color-text-tertiary);
+  padding: 8px 4px;
+  transition: all var(--transition-fast);
 }
+
+.bottom-nav.expanded .bottom-nav-item {
+  flex: 0 0 calc((100% / 5) - 12px);
+  min-width: 70px;
+  max-width: 100px;
+}
+
+/* collapsed state: make items share remaining width and allow them to shrink */
+.bottom-nav:not(.expanded) .bottom-nav-item {
+  flex: 1 1 0;       /* grow equally, no fixed basis */
+  min-width: 0;      /* allow shrinking below text width to avoid overflow */
+  padding: 12px 10px;/* increase padding as you wanted */
+  max-width: none;
+}
+
+/* push expand button to the far right inside the same flex row */
+.bottom-nav:not(.expanded) .expand-toggle {
+  margin-left: auto;
+  flex-shrink: 0;
+  width: 42px;       /* must match the reserved width in JS (see note) */
+  height: 42px;
+}
+
 
 .icon-container {
   width: 64px;
@@ -34,33 +91,118 @@
   align-items: center;
   justify-content: center;
   border-radius: 16px;
-  transition: all 0.3s ease;
+  transition: all var(--transition-normal);
 }
 
 .icon-container.active-pill {
-  background-color: #004d40; /* Dark teal background for active state */
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-accent) 100%);
 }
 
 .nav-icon {
   font-size: 1.25rem;
   line-height: 1;
+  transition: all var(--transition-fast);
 }
 
 .nav-label {
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   font-weight: 500;
-  color: #94a3b8;
+  color: var(--color-text-tertiary);
+  transition: all var(--transition-fast);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
 }
 
 .bottom-nav-item.active .nav-label {
-  color: #e2e8f0; /* Lighter text for active */
+  color: var(--color-primary);
+  font-weight: 600;
 }
 
 .bottom-nav-item.active .nav-icon {
-  color: #2dd4bf; /* Teal icon color */
+  transform: scale(1.1);
+}
+
+/* Expand Toggle Button */
+.expand-toggle {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: var(--color-secondary);
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  box-shadow: var(--shadow-md);
+  transition: all var(--transition-normal);
+  margin: 0;
+}
+
+.expand-toggle:hover {
+  background: var(--color-secondary-dark);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+.expand-toggle:active {
+  transform: translateY(0);
+}
+
+.expand-arrow {
+  font-size: 1.25rem;
+  color: white;
+  font-weight: bold;
+  transition: transform var(--transition-normal);
+  display: inline-block;
+}
+
+.expand-arrow.rotated {
+  transform: rotate(180deg);
 }
 
 /* Adjust main content padding when nav is visible */
 body.has-bottom-nav #root {
-  padding-bottom: 80px;
+  padding-bottom: 90px;
+}
+
+/* Mobile optimizations */
+@media (max-width: 480px) {
+  .bottom-nav-item {
+    min-width: 50px;
+  }
+  
+  .nav-label {
+    font-size: 0.65rem;
+  }
+  
+  .icon-container {
+    width: 56px;
+    height: 28px;
+  }
+  
+  .nav-icon {
+    font-size: 1.1rem;
+  }
+  
+  .expand-toggle {
+    width: 42px;
+    height: 42px;
+  }
+  
+  .expand-arrow {
+    font-size: 1.9rem;
+  }
+  
+  .bottom-nav.expanded .bottom-nav-item {
+    flex: 0 0 calc((100% / 4) - 12px);
+  }
+}
+
+@media (max-width: 360px) {
+  .bottom-nav.expanded .bottom-nav-item {
+    flex: 0 0 calc((100% / 3) - 12px);
+  }
 }

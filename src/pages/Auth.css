@@ -157,7 +157,6 @@
   padding: var(--spacing-2xl);
   border-radius: var(--radius-xl);
   box-shadow: var(--shadow-xl);
-  backdrop-filter: blur(10px);
 }
 
 .auth-header {
