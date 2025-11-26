@@ -70,7 +70,7 @@ const Auth = () => {
       
       if (!isLogin) {
         // ==================== SIGNUP FLOW ====================
-        const { user: authUser, session, error: authError } = await authService.signUp(email, password);
+        const { user: authUser, error: authError } = await authService.signUp(email, password);
         
         if (authError) {
           throw new Error(authError.message || 'Failed to create account');
@@ -82,17 +82,6 @@ const Auth = () => {
 
         // Step 2: Create profile in database with the auto-generated UUID
         const userId = authUser.id; // This is the auto-generated UUID from Supabase Auth
-        let activeSession = session;
-
-        if (!activeSession?.access_token) {
-          const signinResult = await authService.signIn(email, password);
-          if (signinResult.error || !signinResult.session) {
-            throw new Error('Unable to create user session. Please try logging in.');
-          }
-          activeSession = signinResult.session;
-        }
-        
-        apiService.setAuthToken(activeSession.access_token);
         
         const profileData = {
           name,
@@ -122,8 +111,7 @@ const Auth = () => {
         login({
           user_id: userId,
           ...profileData,
-          email,
-          token: activeSession.access_token
+          email
         });
         
         showSuccess('Account created successfully! Welcome to FitLife AI!');
@@ -131,7 +119,7 @@ const Auth = () => {
         
       } else {
         // ==================== LOGIN FLOW ====================
-        const { user: authUser, session, error: authError } = await authService.signIn(email, password);
+        const { user: authUser, error: authError } = await authService.signIn(email, password);
           
           if (authError) {
             throw new Error(authError.message || 'Login failed');
@@ -142,7 +130,6 @@ const Auth = () => {
           }
 
           const userId = authUser.id;
-          apiService.setAuthToken(session?.access_token);
 
           // Fetch user profile from database
           let userData;
@@ -151,16 +138,14 @@ const Auth = () => {
             userData = {
               user_id: userId,
               ...profile,
-              email: authUser.email,
-              token: session?.access_token
+              email: authUser.email
             };
           } catch (err) {
             // If profile doesn't exist, just log them in with basic info
             userData = {
               user_id: userId,
               name: authUser.user_metadata?.name || 'User',
-              email: authUser.email,
-              token: session?.access_token
+              email: authUser.email
             };
           }
         

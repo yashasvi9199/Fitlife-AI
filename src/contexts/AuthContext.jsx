@@ -20,29 +20,25 @@ export const AuthProvider = ({ children }) => {
       if (storedUser) {
         try {
           const parsedUser = JSON.parse(storedUser);
-
-          if (!parsedUser?.token) {
-            localStorage.removeItem('fitlife_user');
-          } else {
-            apiService.setAuthToken(parsedUser.token);
-            setUser(parsedUser);
-            
-            // Refresh profile from API to ensure we have latest data (like gender)
-            if (parsedUser.user_id && parsedUser.user_id !== '12345') {
-              try {
-                const profile = await apiService.getUserProfile(parsedUser.user_id);
-                if (profile) {
-                  const updatedUser = { ...parsedUser, ...profile };
-                  if (!updatedUser.email && parsedUser.email) {
-                    updatedUser.email = parsedUser.email;
-                  }
-                  setUser(updatedUser);
-                  localStorage.setItem('fitlife_user', JSON.stringify(updatedUser));
-                }
-              } catch (err) {
-                console.error('Failed to refresh profile', err);
-              }
-            }
+          setUser(parsedUser);
+          
+          // Refresh profile from API to ensure we have latest data (like gender)
+          // Skip for the old mock ID '12345' to avoid 404s if it doesn't exist in DB
+          if (parsedUser.user_id && parsedUser.user_id !== '12345') {
+             try {
+               const profile = await apiService.getUserProfile(parsedUser.user_id);
+               if (profile) {
+                 const updatedUser = { ...parsedUser, ...profile };
+                 // Preserve email if not returned by profile
+                 if (!updatedUser.email && parsedUser.email) {
+                   updatedUser.email = parsedUser.email;
+                 }
+                 setUser(updatedUser);
+                 localStorage.setItem('fitlife_user', JSON.stringify(updatedUser));
+               }
+             } catch (err) {
+               console.error('Failed to refresh profile', err);
+             }
           }
         } catch (e) {
           console.error('Failed to parse stored user', e);
@@ -56,22 +52,18 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const login = (userData) => {
-    if (userData?.token) {
-      apiService.setAuthToken(userData.token);
-    }
     setUser(userData);
     localStorage.setItem('fitlife_user', JSON.stringify(userData));
   };
 
   const logout = () => {
-    apiService.setAuthToken(null);
     setUser(null);
     localStorage.removeItem('fitlife_user');
   };
 
   const updateUser = (userData) => {
     setUser(prev => {
-      const updated = { ...prev, ...userData, token: userData?.token ?? prev?.token };
+      const updated = { ...prev, ...userData };
       localStorage.setItem('fitlife_user', JSON.stringify(updated));
       return updated;
     });

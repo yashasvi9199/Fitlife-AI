@@ -9,6 +9,7 @@ import { ThemeProvider } from './contexts/ThemeContext';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { ToastProvider } from './contexts/ToastContext';
 import Sidebar from './components/layout/Sidebar';
+import Sparkles from './components/Sparkles';
 import Auth from './pages/Auth';
 import Dashboard from './pages/Dashboard';
 import Health from './pages/Health';
@@ -160,6 +161,7 @@ function App() {
 
   return (
     <Router basename={basename}>
+      <Sparkles count={25} />
       <ThemeProvider>
         <AuthProvider>
           <ToastProvider>
