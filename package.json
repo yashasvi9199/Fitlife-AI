@@ -11,10 +11,10 @@
     "preview": "vite preview",
     "predeploy": "npm run build",
     "deploy": "gh-pages -d dist",
-    "android:sync": "npm run build && npx cap sync android",
+    "android:sync": "CAPACITOR=true npm run build && npx cap sync android",
     "android:open": "npx cap open android",
-    "android:run": "npm run build && npx cap sync android && npx cap run android",
-    "android:build": "npm run build && npx cap sync android && cd android && ./gradlew assembleRelease"
+    "android:run": "CAPACITOR=true npm run build && npx cap sync android && npx cap run android",
+    "android:build": "CAPACITOR=true npm run build && npx cap sync android && cd android && ./gradlew assembleRelease"
   },
   "dependencies": {
     "@capacitor/android": "^7.4.4",

@@ -84,7 +84,7 @@ const Profile = () => {
           <h2>{formData.name || 'User'}</h2>
           <p className="profile-mobile">{formData.mobile}</p>
 
-          <div className="profile-stats">
+          {/* <div className="profile-stats">
             <div className="profile-stat">
               <span className="stat-icon">❤️</span>
               <p className="stat-value">0</p>
@@ -100,7 +100,7 @@ const Profile = () => {
               <p className="stat-value">0</p>
               <p className="stat-label">Goals</p>
             </div>
-          </div>
+          </div> */}
         </div>
 
         {/* Profile Details */}

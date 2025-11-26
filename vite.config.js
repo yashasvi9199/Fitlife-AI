@@ -7,7 +7,9 @@ export default defineConfig(({ mode }) => {
   // eslint-disable-next-line no-undef
   const isCapacitor = process.env.CAPACITOR === 'true';
   const base = isCapacitor ? '/' : (mode === 'production' ? '/Fitlife-AI/' : '/');
-  
+
+  console.log(`[Vite Config] Mode: ${mode}, Is Capacitor: ${isCapacitor}, Base: ${base}`);
+
   return {
     plugins: [react()],
     base: base,
