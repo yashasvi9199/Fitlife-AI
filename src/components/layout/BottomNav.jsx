@@ -9,7 +9,7 @@ const BottomNav = () => {
   const [visibleCount, setVisibleCount] = useState(7);
 
   const navItems = [
-    { id: 'history', label: 'Dashboard', icon: '🕒', path: '/' },
+    { id: 'history', label: 'Home', icon: '🕒', path: '/' },
     { id: 'health', label: 'Health', icon: '❤️', path: '/health' },
     { id: 'fitness', label: 'Fitness', icon: '🧭', path: '/fitness' },
     { id: 'goals', label: 'Goals', icon: '💾', path: '/goals' },
