@@ -26,3 +26,9 @@ src/assets/new.txt
 IMPLEMENTATION_SUMMARY.md
 ENHANCEMENTS.md
 FIXES_SUMMARY.md
+
+# Android build artifacts
+android/app/build/
+android/build/
+*.keystore
+!releases/
