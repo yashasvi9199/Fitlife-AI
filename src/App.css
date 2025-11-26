@@ -25,6 +25,8 @@
   margin-left: var(--sidebar-width);
   min-height: 100vh;
   transition: margin-left var(--transition-normal);
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 
 .sidebar.collapsed ~ .app-main {
@@ -70,6 +72,7 @@
 @media (max-width: 768px) {
   .app-main {
     margin-left: 0;
+    padding-top: calc(env(safe-area-inset-top, 0px) + var(--spacing-lg));
   }
 
   .sidebar.collapsed ~ .app-main {

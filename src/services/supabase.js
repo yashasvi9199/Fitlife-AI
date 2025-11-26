@@ -23,7 +23,7 @@ export const authService = {
         throw new Error(data.error || 'Signup failed');
       }
 
-      return { user: data.user, error: null };
+      return { user: data.user, session: data.session, error: null };
     } catch (error) {
       console.error('Signup error:', error);
       return { user: null, error };

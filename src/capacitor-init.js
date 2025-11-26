@@ -21,6 +21,7 @@ export const initializeCapacitor = async () => {
     // Configure Status Bar
     await StatusBar.setStyle({ style: Style.Dark });
     await StatusBar.setBackgroundColor({ color: '#4F46E5' });
+    await StatusBar.setOverlaysWebView({ overlay: false });
     console.log('✅ Status bar configured');
 
     // Configure keyboard behavior

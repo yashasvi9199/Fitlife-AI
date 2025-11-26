@@ -5,6 +5,14 @@
 const API_BASE_URL = 'https://fitlife-ai-api.vercel.app/api';
 
 class ApiService {
+  constructor() {
+    this.authToken = null;
+  }
+
+  setAuthToken(token) {
+    this.authToken = token || null;
+  }
+
   /**
    * Generic request handler
    */
@@ -16,6 +24,10 @@ class ApiService {
           ...options.headers,
         },
       };
+
+      if (this.authToken) {
+        config.headers.Authorization = `Bearer ${this.authToken}`;
+      }
 
       // Only add Content-Type for requests with body (POST, PUT, PATCH)
       // This prevents CORS preflight on GET requests
@@ -226,4 +238,6 @@ class ApiService {
   }
 }
 
-export default new ApiService();
+const apiService = new ApiService();
+
+export default apiService;

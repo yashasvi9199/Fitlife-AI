@@ -9,11 +9,10 @@ export const sanitizeString = (input) => {
   if (typeof input !== 'string') return input;
   
   return input
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#x27;')
-    .replace(/\//g, '&#x2F;');
+    .replace(/[<>"'`]/g, '') // Remove HTML tags and quotes
+    .replace(/javascript:/gi, '') // Remove javascript: protocols
+    .replace(/on\w+=/gi, '') // Remove event handlers
+    .trim();
 };
 
 /**
@@ -23,6 +22,20 @@ export const sanitizeHTML = (html) => {
   const temp = document.createElement('div');
   temp.textContent = html;
   return temp.innerHTML;
+};
+
+/**
+ * Sanitize SQL input to prevent injection
+ */
+export const sanitizeSQL = (input) => {
+  return input.replace(/['";\\]/g, ''); // Remove SQL injection characters
+};
+
+/**
+ * Sanitize numbers to prevent unexpected values
+ */
+export const sanitizeNumber = (input) => {
+  return input.replace(/[^0-9.-]/g, ''); // Keep only numbers, dots, and hyphens
 };
 
 /**
@@ -47,6 +60,14 @@ export const isValidPhone = (phone) => {
 export const isValidNumber = (value, min = -Infinity, max = Infinity) => {
   const num = parseFloat(value);
   return !isNaN(num) && num >= min && num <= max;
+};
+
+/**
+ * Validate UUID format
+ */
+export const isValidUUID = (uuid) => {
+  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  return uuidRegex.test(uuid);
 };
 
 /**
