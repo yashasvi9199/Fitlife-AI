@@ -1,0 +1,27 @@
+{
+  "appId": "com.fitlifeai.app",
+  "appName": "FitLife AI",
+  "webDir": "dist",
+  "server": {
+    "androidScheme": "https",
+    "cleartext": true
+  },
+  "android": {
+    "buildOptions": {
+      "keystorePath": "",
+      "keystoreAlias": ""
+    }
+  },
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 2000,
+      "backgroundColor": "#4F46E5",
+      "showSpinner": true,
+      "spinnerColor": "#FFFFFF"
+    },
+    "StatusBar": {
+      "style": "dark",
+      "backgroundColor": "#4F46E5"
+    }
+  }
+}

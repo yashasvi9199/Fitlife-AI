@@ -4,11 +4,13 @@
 
 import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
+import { useTheme } from '../contexts/ThemeContext';
 import apiService from '../services/api';
 import './Profile.css';
 
 const Profile = () => {
-  const { user, updateUser } = useAuth();
+  const { user, updateUser, logout } = useAuth();
+  const { theme, toggleTheme } = useTheme();
   const [editing, setEditing] = useState(false);
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -81,7 +83,7 @@ const Profile = () => {
           </div>
           <h2>{formData.name || 'User'}</h2>
           <p className="profile-mobile">{formData.mobile}</p>
-          
+
           <div className="profile-stats">
             <div className="profile-stat">
               <span className="stat-icon">❤️</span>
@@ -211,7 +213,7 @@ const Profile = () => {
                     />
                   </div>
                 </div>
-                
+
                 <div className="form-actions">
                   <button type="submit" className="btn btn-primary" disabled={loading}>
                     {loading ? 'Saving...' : '💾 Save Changes'}
@@ -230,6 +232,42 @@ const Profile = () => {
               </form>
             </div>
           )}
+        </div>
+
+        {/* App Settings */}
+        <div className="card settings-card">
+          <h3>⚙️ App Settings</h3>
+          <div className="settings-grid">
+            <div className="setting-item">
+              <div className="setting-info">
+                <span className="setting-icon">{theme === 'dark' ? '🌙' : '☀️'}</span>
+                <div>
+                  <p className="setting-label">Theme</p>
+                  <p className="setting-value">{theme === 'dark' ? 'Dark Mode' : 'Light Mode'}</p>
+                </div>
+              </div>
+              <button className="btn btn-secondary" onClick={toggleTheme}>
+                Toggle
+              </button>
+            </div>
+
+            <div className="setting-item">
+              <div className="setting-info">
+                <span className="setting-icon">🚪</span>
+                <div>
+                  <p className="setting-label">Session</p>
+                  <p className="setting-value">Currently logged in</p>
+                </div>
+              </div>
+              <button className="btn btn-danger" onClick={() => {
+                if (window.confirm('Are you sure you want to logout?')) {
+                  logout();
+                }
+              }}>
+                Logout
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </div>

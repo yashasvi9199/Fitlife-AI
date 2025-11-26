@@ -1,0 +1,66 @@
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 80px; /* Taller to match screenshot */
+  background-color: #0f172a; /* Dark background */
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding-bottom: 10px; /* Safe area for gestures */
+  z-index: 1000;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.bottom-nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  flex: 1;
+  cursor: pointer;
+  gap: 4px;
+  color: #94a3b8; /* Inactive color */
+  padding: 8px 0;
+}
+
+.icon-container {
+  width: 64px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 16px;
+  transition: all 0.3s ease;
+}
+
+.icon-container.active-pill {
+  background-color: #004d40; /* Dark teal background for active state */
+}
+
+.nav-icon {
+  font-size: 1.25rem;
+  line-height: 1;
+}
+
+.nav-label {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #94a3b8;
+}
+
+.bottom-nav-item.active .nav-label {
+  color: #e2e8f0; /* Lighter text for active */
+}
+
+.bottom-nav-item.active .nav-icon {
+  color: #2dd4bf; /* Teal icon color */
+}
+
+/* Adjust main content padding when nav is visible */
+body.has-bottom-nav #root {
+  padding-bottom: 80px;
+}

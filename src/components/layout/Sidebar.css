@@ -68,32 +68,66 @@
   color: var(--color-primary);
 }
 
-/* Floating Mobile Toggle Button */
+/* Floating Mobile Toggle Button - Elegant Glassmorphism Design */
 .sidebar-mobile-toggle {
   position: fixed;
-  top: var(--spacing-lg);
-  left: var(--spacing-lg);
+  top: 1rem;
+  left: 1rem;
   z-index: 998;
-  background: var(--color-primary);
+
+  /* Glassmorphism effect */
+  background: rgba(79, 70, 229, 0.8);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+
   color: white;
-  border: none;
-  border-radius: var(--radius-lg);
-  padding: var(--spacing-md);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  padding: 0.75rem;
   cursor: pointer;
-  box-shadow: var(--shadow-xl);
-  transition: all var(--transition-fast);
+
+  /* Subtle shadow */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   display: flex;
   align-items: center;
   justify-content: center;
+
+  /* Subtle pulse animation */
+  animation: subtlePulse 3s ease-in-out infinite;
+}
+
+@keyframes subtlePulse {
+  0%,
+  100% {
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.06),
+      inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 0 0 0 rgba(79, 70, 229, 0.4);
+  }
+  50% {
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.06),
+      inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 0 0 8px rgba(79, 70, 229, 0);
+  }
 }
 
 .sidebar-mobile-toggle:hover {
-  transform: scale(1.05);
-  box-shadow: var(--shadow-2xl);
+  background: rgba(79, 70, 229, 0.95);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 12px rgba(0, 0, 0, 0.15), 0 4px 6px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
 
 .sidebar-mobile-toggle:active {
-  transform: scale(0.95);
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.sidebar-mobile-toggle svg {
+  width: 24px;
+  height: 24px;
+  stroke-width: 2.5;
 }
 
 /* User Info */
@@ -173,7 +207,11 @@
 }
 
 .nav-item.active {
-  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
+  background: linear-gradient(
+    135deg,
+    var(--color-primary) 0%,
+    var(--color-secondary) 100%
+  );
   color: white;
   font-weight: 600;
 }

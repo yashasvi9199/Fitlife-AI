@@ -5,7 +5,24 @@
 [![React](https://img.shields.io/badge/React-18-blue)](https://reactjs.org/)
 [![Vite](https://img.shields.io/badge/Vite-Latest-purple)](https://vitejs.dev/)
 [![PWA](https://img.shields.io/badge/PWA-Enabled-success)](https://web.dev/progressive-web-apps/)
+[![Android](https://img.shields.io/badge/Android-Capacitor-green)](https://capacitorjs.com/)
 [![Accessibility](https://img.shields.io/badge/A11y-WCAG_AA-green)](https://www.w3.org/WAI/WCAG2AA-Conformance)
+
+---
+
+## 📱 **NEW: Android App Available!**
+
+FitLife AI is now available as a native Android application! 🎉
+
+- **Quick Start**: See [ANDROID_QUICK_REF.md](./ANDROID_QUICK_REF.md)
+- **Full Guide**: See [ANDROID_GUIDE.md](./ANDROID_GUIDE.md)
+- **Summary**: See [ANDROID_CONVERSION_SUMMARY.md](./ANDROID_CONVERSION_SUMMARY.md)
+
+```bash
+# Build and run on Android
+npm run android:sync
+npm run android:open
+```
 
 ---
 
@@ -448,150 +465,3 @@ For issues or questions:
 **Made with ❤️ and 💪**
 
 [⬆ Back to Top](#-fitlife-ai---fitness-tracker)
-
-</div> Frontend
-
-A beautiful, modern fitness tracking application built with React and JavaScript. Features AI-powered food analysis, workout routines, health tracking, and goal management.
-
-## 🎨 Features
-
-- ✅ **Modern Design System** - Vibrant, energetic color scheme with gradient accents
-- ✅ **Dark/Light Mode** - Smooth theme toggle that persists across sessions
-- ✅ **Responsive Layout** - Works perfectly on mobile, tablet, and desktop
-- ✅ **Authentication** - Mobile number-based login/signup
-- ✅ **Collapsible Sidebar** - Space-efficient navigation with hamburger menu
-- ✅ **Dashboard** - Overview of your fitness journey with quick actions
-
-### Upcoming Features (In Development)
-
-- 🔄 Health Tracking - Weight, measurements, and health metrics
-- 🔄 Fitness Routines - Custom workout plans and exercises
-- 🔄 Goals Management - Set and track fitness goals with progress visualization
-- 🔄 Calendar Integration - Schedule and plan workouts
-- 🔄 AI Food Analysis - Scan food images and barcodes for nutrition data
-- 🔄 User Profile - Manage account and preferences
-
-## 🚀 Getting Started
-
-### Prerequisites
-
-- Node.js (v16 or higher)
-- npm or yarn
-
-### Installation
-
-The project is already set up! Just make sure all dependencies are installed:
-
-```bash
-cd /home/drone/Programming/fitness-tracker
-npm install
-```
-
-### Running the App
-
-The dev server should already be running. If not, start it with:
-
-```bash
-npm run dev
-```
-
-The app will be available at `http://localhost:5173` (or the port shown in your terminal).
-
-## 📁 Project Structure
-
-```
-src/
-├── components/
-│   ├── common/          # Reusable components (ThemeToggle, etc.)
-│   └── layout/          # Layout components (Sidebar, etc.)
-├── contexts/            # React contexts (Theme, Auth)
-├── pages/               # Page components (Dashboard, Auth, etc.)
-├── services/            # API services
-├── App.jsx              # Main app component
-├── App.css              # App-level styles
-├── index.css            # Global styles & design system
-└── main.jsx             # App entry point
-```
-
-## 🎨 Design System
-
-### Color Palette
-
-- **Primary**: Electric Blue (#0EA5E9) to Teal (#14B8A6) gradient
-- **Accent Orange**: #FF6B35
-- **Accent Purple**: #8B5CF6
-- **Success Green**: #10B981
-- **Warning Yellow**: #F59E0B
-- **Danger Red**: #EF4444
-
-### Theme Toggle
-
-The app supports both light and dark modes. Toggle between themes using the switch in the sidebar. Your preference is saved to localStorage.
-
-## 🔌 API Integration
-
-The app connects to the FitLife AI API at `https://fitlife-ai-api.vercel.app/api`
-
-All API endpoints are configured in `src/services/api.js` with methods for:
-
-- Health tracking (create records, get stats)
-- Fitness routines (create, list, update)
-- Goals (set, list, update)
-- Calendar events (create, list, update)
-- User profile (get, update)
-- AI analysis (food images, barcode scanning)
-- Telegram integration (connect, send reminders)
-
-## 🧪 Testing the App
-
-1. **Login/Signup**: Start with the authentication page
-
-   - For signup: Enter your name and mobile number
-   - For login: Use your previously registered mobile number
-
-2. **Explore Dashboard**: View your fitness overview with quick stats and actions
-
-3. **Navigation**: Use the sidebar to navigate between sections (more features coming soon!)
-
-4. **Theme Toggle**: Try switching between light and dark modes
-
-## 🛠️ Technologies
-
-- **React 18** - UI library
-- **Vite** - Build tool and dev server
-- **Vanilla CSS** - Styling (no framework dependencies)
-- **Context API** - State management
-- **Fetch API** - HTTP requests
-
-## 📝 Development Approach
-
-This project is being built **one segment at a time** to ensure quality and proper testing:
-
-✅ **Phase 1 Complete**: Foundation & Authentication
-
-- Design system with vibrant colors
-- Dark/light mode toggle
-- Responsive sidebar navigation
-- Login/signup pages
-- API service layer
-
-🔄 **Phase 2 In Progress**: Core Features
-
-- Health Tracking Module (Next)
-- Fitness Routines
-- Goals
-- Calendar
-- AI Food Analysis
-- User Profile
-
-## 📄 License
-
-Private project for FitLife AI
-
-## 🤝 Contributing
-
-This is a private project. Contributions are managed internally.
-
----
-
-Built with ❤️ and 💪 for FitLife AI
