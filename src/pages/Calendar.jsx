@@ -10,14 +10,23 @@ import './Calendar.css';
 const Calendar = () => {
   const { user } = useAuth();
   const [events, setEvents] = useState([]);
-  const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
+
+  // Get local date without timezone offset
+  const getLocalDateString = (date = new Date()) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
+  const [selectedDate, setSelectedDate] = useState(getLocalDateString());
   const [loading, setLoading] = useState(false);
   const [showForm, setShowForm] = useState(false);
-  
+
   const [formData, setFormData] = useState({
     title: '',
     type: 'workout',
-    date: new Date().toISOString().split('T')[0],
+    date: getLocalDateString(),
   });
 
   const eventTypes = [
@@ -84,28 +93,30 @@ const Calendar = () => {
     const date = new Date(selectedDate);
     const year = date.getFullYear();
     const month = date.getMonth();
-    
+
     const firstDay = new Date(year, month, 1);
     const lastDay = new Date(year, month + 1, 0);
     const daysInMonth = lastDay.getDate();
     const startDayOfWeek = firstDay.getDay();
-    
+
     const days = [];
-    
+
     // Previous month days
     for (let i = 0; i < startDayOfWeek; i++) {
       days.push({ day: null, isCurrentMonth: false });
     }
-    
+
     // Current month days
     for (let i = 1; i <= daysInMonth; i++) {
+      const dayDate = new Date(year, month, i);
+      const dateStr = getLocalDateString(dayDate);
       days.push({
         day: i,
         isCurrentMonth: true,
-        date: new Date(year, month, i).toISOString().split('T')[0],
+        date: dateStr,
       });
     }
-    
+
     return days;
   };
 
@@ -191,7 +202,7 @@ const Calendar = () => {
               </button>
               <button
                 className="btn btn-secondary btn-sm"
-                onClick={() => setSelectedDate(new Date().toISOString().split('T')[0])}
+                onClick={() => setSelectedDate(getLocalDateString())}
               >
                 Today
               </button>
