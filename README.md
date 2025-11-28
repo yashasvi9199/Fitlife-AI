@@ -10,7 +10,7 @@
 
 ## 🚀 Live Demo
 
-- **Web App**: [https://yashasvi9199.github.io/style-glow-ai](https://yashasvi9199.github.io/style-glow-ai)
+- **Web App**: [https://yashasvi9199.github.io/Fitlife-AI/](https://yashasvi9199.github.io/Fitlife-AI/)
 - **API**: Deployed on Vercel
 ---
 
