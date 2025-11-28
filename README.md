@@ -8,6 +8,10 @@
 [![Android](https://img.shields.io/badge/Android-Capacitor-green)](https://capacitorjs.com/)
 [![Accessibility](https://img.shields.io/badge/A11y-WCAG_AA-green)](https://www.w3.org/WAI/WCAG2AA-Conformance)
 
+## 🚀 Live Demo
+
+- **Web App**: [https://yashasvi9199.github.io/style-glow-ai](https://yashasvi9199.github.io/style-glow-ai)
+- **API**: Deployed on Vercel
 ---
 
 ## 📱 **NEW: Android App Available!**
